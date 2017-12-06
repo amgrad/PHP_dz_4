@@ -4,22 +4,26 @@ $city_id = 2172797; //id города
 $appid = '08039f9a3dd9552580539298f56db4fa'; //ключ
 $site = "http://samples.openweathermap.org/data/2.5/weather?id=$city_id&appid=$appid";
 
-$endtime = 3601;
+$valid = false;
+
 $fileName = 'data.json';
 if (file_exists($fileName)) {
-	$filetime = filectime("data.json"); //время изменения индексного дескриптора файла
+	$filetime = filectime($fileName); //время изменения индексного дескриптора файла
 	$time = time(); //текущая метка времени Unix
 	$endtime = $time - $filetime;
-}	
+	if ($endtime < 3600) {
+		$valid = true;
+	}
+}
 
-if ($endtime < 3600) {
-	$result = file_get_contents('data.json');
+if ($valid) {
+	$result = file_get_contents($fileName);
 }
 else {
-	$file = fopen('data.json', 'a'); //открываем файл на запись
+	$file = fopen($fileName, 'w+'); //открываем файл на запись
 	$result = file_get_contents($site);	//указываем что записать
 	$record = fwrite($file, $result); //запись в файл
-	fclose($file); //закываем файл
+	fclose($file); //закрываем файл
 }
 
 $data = json_decode($result, true);
